@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"wallet-service"
+	"wallet-service/topic_init"
 
 	"github.com/lovoo/goka"
 )
@@ -55,6 +56,11 @@ func aboveThreshold(ctx goka.Context, msg interface{}) {
 
 		ctx.SetValue(wil)
 	}
+}
+
+func PrepareTopics(brokers []string) {
+	topic_init.EnsureTableExists(string(Table), brokers)
+	topic_init.EnsureStreamExists(string(wallet.DepositStream), brokers)
 }
 
 func Run(ctx context.Context, brokers []string) func() error {

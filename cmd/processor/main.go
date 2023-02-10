@@ -27,7 +27,12 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	grp, ctx := errgroup.WithContext(ctx)
 
-	topic_init.EnsureStreamExists(string(wallet.DepositStream), brokers)
+	if *runBalance {
+		balance.PrepareTopics(brokers)
+	}
+	if *runAboveThreshold {
+		above_threshold.PrepareTopics(brokers)
+	}
 
 	if *runBalance {
 		log.Println("starting balance processor")

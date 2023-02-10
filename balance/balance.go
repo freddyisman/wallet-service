@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"wallet-service"
+	"wallet-service/topic_init"
 
 	"github.com/lovoo/goka"
 )
@@ -23,6 +24,11 @@ func balance(ctx goka.Context, msg interface{}) {
 	w.Balance += dr.Amount
 
 	ctx.SetValue(w)
+}
+
+func PrepareTopics(brokers []string) {
+	topic_init.EnsureTableExists(string(Table), brokers)
+	topic_init.EnsureStreamExists(string(wallet.DepositStream), brokers)
 }
 
 func Run(ctx context.Context, brokers []string) func() error {
