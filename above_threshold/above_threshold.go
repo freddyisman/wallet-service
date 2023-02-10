@@ -24,37 +24,46 @@ func aboveThreshold(ctx goka.Context, msg interface{}) {
 	if v := ctx.Value(); v != nil {
 		wil = *(v.(*[]wallet.WalletInfo))
 	}
+
+	dr := msg.(*wallet.DepositRequest)
+
+	if len(wil) == 0 {
+		ctx.SetValue([]wallet.WalletInfo{
+			{
+				WalletID:            dr.WalletID,
+				LastDepositAmount:   dr.Amount,
+				TwoMinuteCumulative: dr.Amount,
+				AboveThreshold:      dr.Amount > twoMinuteDepositLimit,
+				UpdatedAt:           dr.CreatedAt,
+			},
+		})
+		return
 	}
 
 	lastWalletInfo := wil[len(wil)-1]
 
 	if !(lastWalletInfo.AboveThreshold) {
-		dr := msg.(*wallet.DepositRequest)
-
 		start_idx := 0
 		var expiredCumulative float64 = 0.0
 
-		for i, wi := range wil {
+		for _, wi := range wil {
 			if (dr.CreatedAt - wi.UpdatedAt) < twoMinute {
-				start_idx = i
 				break
 			}
 			expiredCumulative += wi.LastDepositAmount
+			start_idx += 1
 		}
 
 		newTwoMinuteCumulative := lastWalletInfo.TwoMinuteCumulative + dr.Amount - expiredCumulative
-
 		newWalletInfo := wallet.WalletInfo{
 			WalletID:            dr.WalletID,
 			LastDepositAmount:   dr.Amount,
 			TwoMinuteCumulative: newTwoMinuteCumulative,
-			AboveThreshold:      newTwoMinuteCumulative <= twoMinuteDepositLimit,
+			AboveThreshold:      newTwoMinuteCumulative > twoMinuteDepositLimit,
 			UpdatedAt:           dr.CreatedAt,
 		}
 
-		wil = wil[start_idx:]
-		wil = append(wil, newWalletInfo)
-
+		wil = append(wil[start_idx:], newWalletInfo)
 		ctx.SetValue(wil)
 	}
 }
