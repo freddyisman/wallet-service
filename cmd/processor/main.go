@@ -7,11 +7,9 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"wallet-service"
 
 	"wallet-service/above_threshold"
 	"wallet-service/balance"
-	"wallet-service/topic_init"
 
 	"golang.org/x/sync/errgroup"
 )

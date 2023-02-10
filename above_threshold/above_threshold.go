@@ -22,7 +22,8 @@ var (
 func aboveThreshold(ctx goka.Context, msg interface{}) {
 	var wil []wallet.WalletInfo
 	if v := ctx.Value(); v != nil {
-		wil = v.([]wallet.WalletInfo)
+		wil = *(v.(*[]wallet.WalletInfo))
+	}
 	}
 
 	lastWalletInfo := wil[len(wil)-1]

@@ -17,7 +17,7 @@ var (
 func balance(ctx goka.Context, msg interface{}) {
 	var w wallet.Wallet
 	if v := ctx.Value(); v != nil {
-		w = v.(wallet.Wallet)
+		w = *(v.(*wallet.Wallet))
 	}
 
 	dr := msg.(*wallet.DepositRequest)

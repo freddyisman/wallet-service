@@ -83,14 +83,14 @@ func feed(balanceView, aboveThresholdView *goka.View) func(w http.ResponseWriter
 			fmt.Fprintf(w, "%s not found!", walletID)
 			return
 		}
-		walletResult := balanceVal.(wallet.Wallet)
+		walletResult := *(balanceVal.(*wallet.Wallet))
 
 		aboveThresholdVal, _ := aboveThresholdView.Get(walletID)
 		if aboveThresholdVal == nil {
 			fmt.Fprintf(w, "%s info not found!", walletID)
 			return
 		}
-		walletInfoList := aboveThresholdVal.([]wallet.WalletInfo)
+		walletInfoList := *(aboveThresholdVal.(*[]wallet.WalletInfo))
 
 		aboveThreshold := walletInfoList[len(walletInfoList)-1].AboveThreshold
 
