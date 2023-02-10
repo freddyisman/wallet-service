@@ -1,0 +1,11 @@
+syntax="proto3";
+
+package main;
+
+option go_package = "../go";
+
+message DepositRequest {
+	string WalletID = 1;
+	double Amount = 2;
+	int64 CreatedAt = 3;
+}

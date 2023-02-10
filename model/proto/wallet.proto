@@ -1,0 +1,10 @@
+syntax="proto3";
+
+package main;
+
+option go_package = "../go";
+
+message WalletInfo {
+    string WalletID = 1;
+    double Balance = 2;
+}
