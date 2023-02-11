@@ -207,27 +207,40 @@ Before starting the service, change to this directory and remember to execute th
 
 ```sh
 go mod tidy
+go mod vendor
 ```
 
 To start the service, execute these commands in order, each in separate terminal:
 
-1. Start the Kafka broker (this may require sudo if failed)
+1. Start the Kafka broker (this may require sudo)
 
-```sh
-make broker-up
-```
+   ```sh
+   make broker-up
+   ```
+
+   This is equivalent with
+
+   ```sh
+   docker compose up -d
+   ```
+
+   In older version of docker compose this may fail, so run this instead
+
+   ```sh
+   docker-compose up -d
+   ```
 
 2. Start the processor (to activate balance and above_threshold processor)
 
-```
-make processor
-```
+   ```
+   make processor
+   ```
 
 3. Start the service (for endpoint handlers, emitter and view)
 
-```
-make api
-```
+   ```
+   make api
+   ```
 
 After all Go programs have been started, you can use `curl` to do a deposit request:
 
