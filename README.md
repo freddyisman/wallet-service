@@ -126,7 +126,7 @@ type WalletInfoList struct {
 type WalletInfo struct {
 	WalletID            string  `json:"WalletID"`
 	LastDepositAmount   float64 `json:"LastDepositAmount"`
-	TwoMinuteCumulative float64 `json:"TwoMinuteCumulative"`
+	RollingPeriodCumulative float64 `json:"RollingPeriodCumulative"`
 	AboveThreshold      bool    `json:"AboveThreshold"`
 	CreatedAt           int64   `json:"CreatedAt"`
 }

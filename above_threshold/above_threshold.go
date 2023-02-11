@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	twoMinute             = 120
-	twoMinuteDepositLimit = 10000
+	rollingPeriod             = 120 // in seconds
+	rollingPeriodDepositLimit = 10000
 )
 
 var (
@@ -30,11 +30,11 @@ func aboveThreshold(ctx goka.Context, msg interface{}) {
 
 	if len(wil.List) == 0 {
 		newWalletInfo := pb_wallet.WalletInfo{
-			WalletID:            dr.WalletID,
-			LastDepositAmount:   dr.Amount,
-			TwoMinuteCumulative: dr.Amount,
-			AboveThreshold:      dr.Amount > twoMinuteDepositLimit,
-			CreatedAt:           dr.CreatedAt,
+			WalletID:                dr.WalletID,
+			LastDepositAmount:       dr.Amount,
+			RollingPeriodCumulative: dr.Amount,
+			AboveThreshold:          dr.Amount > rollingPeriodDepositLimit,
+			CreatedAt:               dr.CreatedAt,
 		}
 
 		wil.List = append(wil.List, &newWalletInfo)
@@ -49,20 +49,20 @@ func aboveThreshold(ctx goka.Context, msg interface{}) {
 		var expiredCumulative float64 = 0.0
 
 		for _, wi := range wil.List {
-			if (dr.CreatedAt - wi.CreatedAt) < twoMinute {
+			if (dr.CreatedAt - wi.CreatedAt) < rollingPeriod {
 				break
 			}
 			expiredCumulative += wi.LastDepositAmount
 			start_idx += 1
 		}
 
-		newTwoMinuteCumulative := lastWalletInfo.TwoMinuteCumulative + dr.Amount - expiredCumulative
+		newRollingPeriodCumulative := lastWalletInfo.RollingPeriodCumulative + dr.Amount - expiredCumulative
 		newWalletInfo := pb_wallet.WalletInfo{
-			WalletID:            dr.WalletID,
-			LastDepositAmount:   dr.Amount,
-			TwoMinuteCumulative: newTwoMinuteCumulative,
-			AboveThreshold:      newTwoMinuteCumulative > twoMinuteDepositLimit,
-			CreatedAt:           dr.CreatedAt,
+			WalletID:                dr.WalletID,
+			LastDepositAmount:       dr.Amount,
+			RollingPeriodCumulative: newRollingPeriodCumulative,
+			AboveThreshold:          newRollingPeriodCumulative > rollingPeriodDepositLimit,
+			CreatedAt:               dr.CreatedAt,
 		}
 
 		wil.List = append(wil.List[start_idx:], &newWalletInfo)
