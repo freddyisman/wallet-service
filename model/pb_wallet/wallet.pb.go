@@ -4,7 +4,7 @@
 // 	protoc        v3.12.4
 // source: wallet.proto
 
-package _go
+package pb_wallet
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -20,7 +20,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type WalletInfo struct {
+type Wallet struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -29,8 +29,8 @@ type WalletInfo struct {
 	Balance  float64 `protobuf:"fixed64,2,opt,name=Balance,proto3" json:"Balance,omitempty"`
 }
 
-func (x *WalletInfo) Reset() {
-	*x = WalletInfo{}
+func (x *Wallet) Reset() {
+	*x = Wallet{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_wallet_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -38,13 +38,13 @@ func (x *WalletInfo) Reset() {
 	}
 }
 
-func (x *WalletInfo) String() string {
+func (x *Wallet) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*WalletInfo) ProtoMessage() {}
+func (*Wallet) ProtoMessage() {}
 
-func (x *WalletInfo) ProtoReflect() protoreflect.Message {
+func (x *Wallet) ProtoReflect() protoreflect.Message {
 	mi := &file_wallet_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -56,19 +56,19 @@ func (x *WalletInfo) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use WalletInfo.ProtoReflect.Descriptor instead.
-func (*WalletInfo) Descriptor() ([]byte, []int) {
+// Deprecated: Use Wallet.ProtoReflect.Descriptor instead.
+func (*Wallet) Descriptor() ([]byte, []int) {
 	return file_wallet_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *WalletInfo) GetWalletID() string {
+func (x *Wallet) GetWalletID() string {
 	if x != nil {
 		return x.WalletID
 	}
 	return ""
 }
 
-func (x *WalletInfo) GetBalance() float64 {
+func (x *Wallet) GetBalance() float64 {
 	if x != nil {
 		return x.Balance
 	}
@@ -79,12 +79,12 @@ var File_wallet_proto protoreflect.FileDescriptor
 
 var file_wallet_proto_rawDesc = []byte{
 	0x0a, 0x0c, 0x77, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x04,
-	0x6d, 0x61, 0x69, 0x6e, 0x22, 0x42, 0x0a, 0x0a, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x49, 0x6e,
-	0x66, 0x6f, 0x12, 0x1a, 0x0a, 0x08, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x49, 0x44, 0x18, 0x01,
-	0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x49, 0x44, 0x12, 0x18,
-	0x0a, 0x07, 0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x01, 0x52,
-	0x07, 0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x42, 0x07, 0x5a, 0x05, 0x2e, 0x2e, 0x2f, 0x67,
-	0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x6d, 0x61, 0x69, 0x6e, 0x22, 0x3e, 0x0a, 0x06, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x12, 0x1a,
+	0x0a, 0x08, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x49, 0x44, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x08, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x49, 0x44, 0x12, 0x18, 0x0a, 0x07, 0x42, 0x61,
+	0x6c, 0x61, 0x6e, 0x63, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x01, 0x52, 0x07, 0x42, 0x61, 0x6c,
+	0x61, 0x6e, 0x63, 0x65, 0x42, 0x0e, 0x5a, 0x0c, 0x2e, 0x2e, 0x2f, 0x70, 0x62, 0x5f, 0x77, 0x61,
+	0x6c, 0x6c, 0x65, 0x74, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -101,7 +101,7 @@ func file_wallet_proto_rawDescGZIP() []byte {
 
 var file_wallet_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_wallet_proto_goTypes = []interface{}{
-	(*WalletInfo)(nil), // 0: main.WalletInfo
+	(*Wallet)(nil), // 0: main.Wallet
 }
 var file_wallet_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -118,7 +118,7 @@ func file_wallet_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_wallet_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*WalletInfo); i {
+			switch v := v.(*Wallet); i {
 			case 0:
 				return &v.state
 			case 1:

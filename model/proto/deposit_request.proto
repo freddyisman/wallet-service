@@ -2,7 +2,7 @@ syntax="proto3";
 
 package main;
 
-option go_package = "../go";
+option go_package = "../pb_wallet";
 
 message DepositRequest {
 	string WalletID = 1;

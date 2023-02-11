@@ -2,9 +2,9 @@ syntax="proto3";
 
 package main;
 
-option go_package = "../go";
+option go_package = "../pb_wallet";
 
-message WalletInfo {
+message Wallet {
     string WalletID = 1;
     double Balance = 2;
 }

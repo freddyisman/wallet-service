@@ -13,6 +13,8 @@ import (
 	"wallet-service/above_threshold"
 	"wallet-service/balance"
 
+	"wallet-service/model/pb_wallet"
+
 	"github.com/gorilla/mux"
 	"github.com/lovoo/goka"
 )
@@ -47,7 +49,7 @@ func Run(brokers []string, stream goka.Stream) {
 
 func send(emitter *goka.Emitter, stream goka.Stream) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var dr wallet.DepositRequest
+		var dr pb_wallet.DepositRequest
 
 		b, err := ioutil.ReadAll(r.Body)
 		if err != nil {
@@ -69,8 +71,8 @@ func send(emitter *goka.Emitter, stream goka.Stream) func(w http.ResponseWriter,
 			return
 		}
 
-		log.Printf("Deposit request:\n %v\n", dr)
-		fmt.Fprintf(w, "Deposit request:\n %v\n", dr)
+		log.Printf("Deposit request:\n %v\n", &dr)
+		fmt.Fprintf(w, "Deposit request:\n %v\n", &dr)
 	}
 }
 
@@ -83,16 +85,16 @@ func feed(balanceView, aboveThresholdView *goka.View) func(w http.ResponseWriter
 			fmt.Fprintf(w, "%s not found!", walletID)
 			return
 		}
-		walletResult := *(balanceVal.(*wallet.Wallet))
+		walletResult := balanceVal.(*pb_wallet.Wallet)
 
 		aboveThresholdVal, _ := aboveThresholdView.Get(walletID)
 		if aboveThresholdVal == nil {
 			fmt.Fprintf(w, "%s info not found!", walletID)
 			return
 		}
-		walletInfoList := *(aboveThresholdVal.(*[]wallet.WalletInfo))
+		walletInfoList := aboveThresholdVal.(*pb_wallet.WalletInfoList)
 
-		aboveThreshold := walletInfoList[len(walletInfoList)-1].AboveThreshold
+		aboveThreshold := walletInfoList.List[len(walletInfoList.List)-1].AboveThreshold
 
 		response := wallet.BalanceResponse{
 			WalletID:       walletResult.WalletID,

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"wallet-service"
+	"wallet-service/model/pb_wallet"
 	"wallet-service/topic_init"
 
 	"github.com/lovoo/goka"
@@ -20,34 +21,35 @@ var (
 )
 
 func aboveThreshold(ctx goka.Context, msg interface{}) {
-	var wil []wallet.WalletInfo
+	wil := new(pb_wallet.WalletInfoList)
 	if v := ctx.Value(); v != nil {
-		wil = *(v.(*[]wallet.WalletInfo))
+		wil = v.(*pb_wallet.WalletInfoList)
 	}
 
-	dr := msg.(*wallet.DepositRequest)
+	dr := msg.(*pb_wallet.DepositRequest)
 
-	if len(wil) == 0 {
-		ctx.SetValue([]wallet.WalletInfo{
-			{
-				WalletID:            dr.WalletID,
-				LastDepositAmount:   dr.Amount,
-				TwoMinuteCumulative: dr.Amount,
-				AboveThreshold:      dr.Amount > twoMinuteDepositLimit,
-				UpdatedAt:           dr.CreatedAt,
-			},
-		})
+	if len(wil.List) == 0 {
+		newWalletInfo := pb_wallet.WalletInfo{
+			WalletID:            dr.WalletID,
+			LastDepositAmount:   dr.Amount,
+			TwoMinuteCumulative: dr.Amount,
+			AboveThreshold:      dr.Amount > twoMinuteDepositLimit,
+			CreatedAt:           dr.CreatedAt,
+		}
+
+		wil.List = append(wil.List, &newWalletInfo)
+		ctx.SetValue(wil)
 		return
 	}
 
-	lastWalletInfo := wil[len(wil)-1]
+	lastWalletInfo := wil.List[len(wil.List)-1]
 
 	if !(lastWalletInfo.AboveThreshold) {
 		start_idx := 0
 		var expiredCumulative float64 = 0.0
 
-		for _, wi := range wil {
-			if (dr.CreatedAt - wi.UpdatedAt) < twoMinute {
+		for _, wi := range wil.List {
+			if (dr.CreatedAt - wi.CreatedAt) < twoMinute {
 				break
 			}
 			expiredCumulative += wi.LastDepositAmount
@@ -55,15 +57,16 @@ func aboveThreshold(ctx goka.Context, msg interface{}) {
 		}
 
 		newTwoMinuteCumulative := lastWalletInfo.TwoMinuteCumulative + dr.Amount - expiredCumulative
-		newWalletInfo := wallet.WalletInfo{
+		newWalletInfo := pb_wallet.WalletInfo{
 			WalletID:            dr.WalletID,
 			LastDepositAmount:   dr.Amount,
 			TwoMinuteCumulative: newTwoMinuteCumulative,
 			AboveThreshold:      newTwoMinuteCumulative > twoMinuteDepositLimit,
-			UpdatedAt:           dr.CreatedAt,
+			CreatedAt:           dr.CreatedAt,
 		}
 
-		wil = append(wil[start_idx:], newWalletInfo)
+		wil.List = append(wil.List[start_idx:], &newWalletInfo)
+
 		ctx.SetValue(wil)
 	}
 }

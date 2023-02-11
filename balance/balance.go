@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"wallet-service"
+	"wallet-service/model/pb_wallet"
 	"wallet-service/topic_init"
 
 	"github.com/lovoo/goka"
@@ -15,12 +16,15 @@ var (
 )
 
 func balance(ctx goka.Context, msg interface{}) {
-	var w wallet.Wallet
+	w := new(pb_wallet.Wallet)
+	dr := msg.(*pb_wallet.DepositRequest)
+
 	if v := ctx.Value(); v != nil {
-		w = *(v.(*wallet.Wallet))
+		w = v.(*pb_wallet.Wallet)
+	} else {
+		w.WalletID = dr.WalletID
 	}
 
-	dr := msg.(*wallet.DepositRequest)
 	w.Balance += dr.Amount
 
 	ctx.SetValue(w)

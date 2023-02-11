@@ -2,12 +2,16 @@ syntax="proto3";
 
 package main;
 
-option go_package = "../go";
+option go_package = "../pb_wallet";
 
-message Wallet {
+message WalletInfo {
     string WalletID = 1;
     double LastDepositAmount = 2;
     double TwoMinuteCumulative = 3;
     bool AboveThreshold = 4;
-    int64 UpdatedAt = 5;
+    int64 CreatedAt = 5;
+}
+
+message WalletInfoList {
+    repeated WalletInfo List = 1;
 }

@@ -4,5 +4,5 @@ broker:
 processor:
 	go run cmd/processor/main.go -balance -above_threshold
 
-service:
+api:
 	go run cmd/service/main.go
