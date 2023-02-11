@@ -5,9 +5,11 @@ This is a ficticious wallet service where user can deposit money into their wall
 This wallet service offers two endpoints:
 
 1. `localhost:8080/deposit`
+
    HTTP POST endpoint for user to deposit money
 
 2. `localhost:8080/details/{wallet_id}`
+
    HTTP GET endpoint to get the balance of the wallet, and also a ﬂag whether the wallet has ever done one
    or more deposits with amounts more than 10,000 within a single 2-minute window (rolling-period)
 
@@ -44,7 +46,7 @@ curl -X POST \
     http://localhost:8080/deposit
 ```
 
-The [`deposit handler`](service/service.go#L50) parses message type, completing the [`CreatedAt`](service/service.go#66). Afterwards, it emits the message into the [`DepositStream`](wallet.go#L10) topic using the wallet_id as key:
+The [`deposit handler`](service/service.go#L50) parses message type, completing the [`CreatedAt`](service/service.go#66) field. Afterwards, it emits the message into the [`DepositStream`](wallet.go#L10) topic using the wallet_id as key:
 
 ```go
 func deposit(emitter *goka.Emitter, stream goka.Stream) func(w http.ResponseWriter, r *http.Request) {
@@ -68,10 +70,10 @@ router.HandleFunc("/deposit", deposit(emitter, stream)).Methods("POST")
 We define the _balance table_ to contain `Wallet` type as follows:
 
 ```go
-    type Wallet struct {
-        WalletID string  `json:"WalletID"`
-        Balance  float64 `json:"Balance"`
-    }
+type Wallet struct {
+	WalletID string  `json:"WalletID"`
+	Balance  float64 `json:"Balance"`
+}
 ```
 
 The _balance processor_ keeps the table up-to-date by consuming [`DepositStream`](wallet.go#L10).
@@ -117,21 +119,21 @@ p, err := goka.NewProcessor(brokers, g)
 We define the _above threshold table_ to contain `WalletInfoList` which field `List` contains list of `WalletInfo` pointer as follows:
 
 ```go
-    type WalletInfoList struct {
-        List []*WalletInfo `json:"List"`
-    }
+type WalletInfoList struct {
+	List []*WalletInfo `json:"List"`
+}
 
-    type WalletInfo struct {
-        WalletID            string  `json:"WalletID"`
-        LastDepositAmount   float64 `json:"LastDepositAmount"`
-        TwoMinuteCumulative float64 `json:"TwoMinuteCumulative"`
-        AboveThreshold      bool    `json:"AboveThreshold"`
-        CreatedAt           int64   `json:"CreatedAt"`
-    }
+type WalletInfo struct {
+	WalletID            string  `json:"WalletID"`
+	LastDepositAmount   float64 `json:"LastDepositAmount"`
+	TwoMinuteCumulative float64 `json:"TwoMinuteCumulative"`
+	AboveThreshold      bool    `json:"AboveThreshold"`
+	CreatedAt           int64   `json:"CreatedAt"`
+}
 ```
 
 The _above_threshold processor_ keeps the table up-to-date by consuming [`DepositStream`](wallet.go#L10).
-The aboveThreshold callback is defined as [follows](above_threshold/above_threshold.go#L23):
+The aboveThreshold callback is defined as follows (for more details, see [here](above_threshold/above_threshold.go#L23)):
 
 ```go
 func aboveThreshold(ctx goka.Context, msg interface{}) {
@@ -142,47 +144,7 @@ func aboveThreshold(ctx goka.Context, msg interface{}) {
 
 	dr := msg.(*pb_wallet.DepositRequest)
 
-	if len(wil.List) == 0 {
-		newWalletInfo := pb_wallet.WalletInfo{
-			WalletID:            dr.WalletID,
-			LastDepositAmount:   dr.Amount,
-			TwoMinuteCumulative: dr.Amount,
-			AboveThreshold:      dr.Amount > twoMinuteDepositLimit,
-			CreatedAt:           dr.CreatedAt,
-		}
-
-		wil.List = append(wil.List, &newWalletInfo)
-		ctx.SetValue(wil)
-		return
-	}
-
-	lastWalletInfo := wil.List[len(wil.List)-1]
-
-	if !(lastWalletInfo.AboveThreshold) {
-		start_idx := 0
-		var expiredCumulative float64 = 0.0
-
-		for _, wi := range wil.List {
-			if (dr.CreatedAt - wi.CreatedAt) < twoMinute {
-				break
-			}
-			expiredCumulative += wi.LastDepositAmount
-			start_idx += 1
-		}
-
-		newTwoMinuteCumulative := lastWalletInfo.TwoMinuteCumulative + dr.Amount - expiredCumulative
-		newWalletInfo := pb_wallet.WalletInfo{
-			WalletID:            dr.WalletID,
-			LastDepositAmount:   dr.Amount,
-			TwoMinuteCumulative: newTwoMinuteCumulative,
-			AboveThreshold:      newTwoMinuteCumulative > twoMinuteDepositLimit,
-			CreatedAt:           dr.CreatedAt,
-		}
-
-		wil.List = append(wil.List[start_idx:], &newWalletInfo)
-
-		ctx.SetValue(wil)
-	}
+	...
 }
 ```
 
@@ -223,7 +185,6 @@ When creating the view, it is configured to watch the `balance.Table` and `above
 ```go
 balanceView, err := goka.NewView(brokers, balance.Table, new(wallet.WalletCodec))
 ...
-
 aboveThresholdView, err := goka.NewView(brokers, above_threshold.Table, new(wallet.WalletInfoListCodec))
 ...
 router.HandleFunc("/details/{wallet_id}", details(balanceView, aboveThresholdView)).Methods("GET")
@@ -233,7 +194,22 @@ For codec implementation details see [wallet.go](wallet.go) file for details.
 
 ## 2. Running the example
 
-To start the service, change to this directory and (in order, each in separate terminal):
+In order for this service to be running properly, the tools, frameworks and language may required to be updated to the latest.
+
+Att the time this service run successfully, golang and docker compose version that are used are as follows:
+
+```sh
+go version go1.20 linux/amd64
+Docker Compose version v2.12.1
+```
+
+Before starting the service, change to this directory and remember to execute this command to resolve golang dependencies:
+
+```sh
+go mod tidy
+```
+
+To start the service, execute these commands in order, each in separate terminal:
 
 1. Start the Kafka broker (this may require sudo if failed)
 
