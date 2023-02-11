@@ -40,14 +40,14 @@ func Run(brokers []string, stream goka.Stream) {
 	defer emitter.Finish()
 
 	router := mux.NewRouter()
-	router.HandleFunc("/deposit", send(emitter, stream)).Methods("POST")
-	router.HandleFunc("/details/{wallet_id}", feed(balanceView, aboveThresholdView)).Methods("GET")
+	router.HandleFunc("/deposit", deposit(emitter, stream)).Methods("POST")
+	router.HandleFunc("/details/{wallet_id}", details(balanceView, aboveThresholdView)).Methods("GET")
 
 	log.Printf("Listen port 8080")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
 
-func send(emitter *goka.Emitter, stream goka.Stream) func(w http.ResponseWriter, r *http.Request) {
+func deposit(emitter *goka.Emitter, stream goka.Stream) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var dr pb_wallet.DepositRequest
 
@@ -76,7 +76,7 @@ func send(emitter *goka.Emitter, stream goka.Stream) func(w http.ResponseWriter,
 	}
 }
 
-func feed(balanceView, aboveThresholdView *goka.View) func(w http.ResponseWriter, r *http.Request) {
+func details(balanceView, aboveThresholdView *goka.View) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		walletID := mux.Vars(r)["wallet_id"]
 
